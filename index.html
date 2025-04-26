@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="react.development.js"></script>
+    <script src="react-dom.development.js"></script>
+    <script src="babel.min.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    
+</head>
+<body>
+
+    <div id="app"></div>
+    
+    <script src="bootstrap.bundle.min.js"></script>
+    
+    <script type="text/babel">
+        const app = document.getElementById('app');
+        const root = ReactDOM.createRoot(app);
+
+        function DriveForm(props) {
+            return (
+              <form onSubmit={(event) => props.handleSubmit(event)} className="mb-3">
+                <input 
+                  type="text" 
+                  className="form-control mb-2" 
+                  onChange={(event) => props.handleDrive(event)} 
+                  value={props.drive}
+                  placeholder="Nama Drive"
+                />
+                <textarea 
+                  className="form-control mb-2" 
+                  onChange={(event) => props.handleDescription(event)} 
+                  value={props.description}
+                  placeholder="Deskripsi"
+                />
+                <button type="submit" className="btn btn-primary w-100">
+                  {props.editIndex !== null ? 'Update' : 'Add'}
+                </button>
+              </form>
+            );
+          }
+          
+        
+        function DriveList(props) {
+            return (
+              <div>
+                {props.data.map((item, key) => (
+                  <div key={key} className="card mb-2">
+                    <div className="card-header bg-dark text-white d-flex justify-content-between ;">
+                      <span>{item.drive}</span>
+                      <div>
+                        <button className="btn btn-sm btn-warning me-2" onClick={() => props.handleEdit(key)}>edit</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => props.handleDelete(key)}>delet</button>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      {item.description}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+          
+          function DriveApp() {
+            const [data, setData] = React.useState([
+            {id : 1, drive: 'apa' , description: 'test'}
+            ]);
+            const [drive, setDrive] = React.useState([]);
+            const [description, setDescription] = React.useState('');
+            const [editIndex, setEditIndex] = React.useState(null);
+          
+            function handleDrive(event) {
+              setDrive(event.target.value);
+            }
+          
+            function handleDescription(event) {
+              setDescription(event.target.value);
+            }
+          
+            function handleSubmit(event) {
+              event.preventDefault();
+              if (editIndex !== null) {
+                // Update mode
+                const updatedData = [...data];
+                updatedData[editIndex] = { drive, description };
+                setData(updatedData);
+                setEditIndex(null);
+              } else {
+                // Add mode
+                setData(prev => [...prev, { drive, description }]);
+              }
+              setDrive([]);
+              setDescription('');
+            }
+          
+            function handleEdit(index) {
+              setDrive(data[index].drive);
+              setDescription(data[index].description);
+              setEditIndex(index);
+            }
+          
+            function handleDelete(index) {
+              const confirmDelete = confirm('Yakin mau hapus item ini?');
+              if (confirmDelete) {
+                const newData = data.filter((_, i) => i !== index);
+                setData(newData);
+              }
+            }
+          
+            return (
+              <div className="container mt-3 ">
+                <div className="card ">
+                  <div className="card-header ">
+                    <h3>DriveApp</h3>
+                  </div>
+                  <div className="card-body">
+                    <DriveForm
+                    handleSubmit={handleSubmit}
+                    drive={drive}
+                    handleDrive={handleDrive}
+                    handleDescription={handleDescription}
+                    description={description}
+                    editIndex={editIndex}
+                    />
+
+                  </div>
+                  <div className="card-footer">
+                    <DriveList
+                      data={data}
+                      handleEdit={handleEdit}
+                      handleDelete={handleDelete}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          
+        
+        root.render(<DriveApp />);
+    </script>
+    
+</body>
+</html>
